@@ -5,7 +5,7 @@ namespace Task5
 {
     class Program
     {
-        static Semaphore sem = new Semaphore(10, 10);
+        static Semaphore sem = new Semaphore(1, 1);
 
         static void Main(string[] args)
         {

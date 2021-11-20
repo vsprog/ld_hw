@@ -39,8 +39,7 @@ namespace Task2
             var last = numbers.Last();
             Console.Write("sequence: ");
             foreach (int n in numbers)
-                Console.Write($"{n} {(n.Equals(last) ? "" : ", ")}");
-            Console.WriteLine();
+                Console.Write($"{n} {(n.Equals(last) ? "\n" : ", ")}");
         }
     }
 }
