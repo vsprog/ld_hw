@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Task7
@@ -7,9 +8,14 @@ namespace Task7
     {
         static void Main(string[] args)
         {
-            var parent = Task.Factory.StartNew(() => Divide(1, 0));
+            var parent = Task.Factory.StartNew(() =>
+            {
+                Console.WriteLine($"parent thread #{Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId}");
+                return Divide(1, 0);
+            });
 
             var child = parent.ContinueWith(t => {
+                Console.WriteLine($"child thread #{Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId}");
                 if (t.IsFaulted)
                 {
                     Exception ex = t.Exception;
@@ -23,9 +29,10 @@ namespace Task7
                 }
                 else
                 {
+                    //Console.WriteLine($"child thread #{Thread.CurrentThread.ManagedThreadId}, task: {Task.CurrentId}");
                     Console.WriteLine("Result: " + t.Result);
                 }
-            });
+            }, TaskContinuationOptions.ExecuteSynchronously); // TaskScheduler.FromCurrentSynchronizationContext()
 
             child.Wait();
 
