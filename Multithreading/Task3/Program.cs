@@ -9,7 +9,7 @@ namespace Task3
         {
             var mat1 = CreateMatrix(2, 3);
             var mat2 = CreateMatrix(3, 2);
-            var result = new double[0, 0];
+            double[,] result = null;
 
             Print(mat1, "First");
             Print(mat2, "Second");
