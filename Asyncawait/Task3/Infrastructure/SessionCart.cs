@@ -7,7 +7,7 @@ using Task3.Models;
 namespace Task3.Infrastructure
 {
     public class SessionCart : Cart
-    {
+    {/*
         public static Cart GetCart(IServiceProvider services)
         {
             ISession session = services.GetRequiredService<IHttpContextAccessor>()?.HttpContext.Session;
@@ -35,6 +35,6 @@ namespace Task3.Infrastructure
         {
             base.Clear();
             Session.Remove("Cart");
-        }
+        }*/
     }
 }

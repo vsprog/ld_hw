@@ -1,39 +1,42 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Task3.Models;
 
 namespace Task3.Infrastructure
 {
     public class Cart
     {
-        private readonly List<CartLine> lineCollection = new List<CartLine>();
+        private readonly ConcurrentDictionary<string, CartLine> lineCollection = new ConcurrentDictionary<string, CartLine>();
 
-        public virtual void AddItem(Product product, int quantity)
+        public virtual async Task AddItem(Product product, int quantity)
         {
-            CartLine line = lineCollection
-                .Where(p => p.Product.Id == product.Id)
-                .FirstOrDefault();
-
-            if (line == null)
-            {
-                lineCollection.Add(new CartLine
+            await Task.Run(() => {
+                lineCollection.TryGetValue(product.Id, out CartLine line);
+                
+                if (line == null)
                 {
-                    Product = product,
-                    Quantity = quantity
-                });
-            }
-            else
-            {
-                line.Quantity += quantity;
-            }
+                    lineCollection.TryAdd(product.Id, new CartLine
+                    {
+                        Product = product,
+                        Quantity = quantity
+                    });
+                }
+                else
+                {
+                    line.Quantity += quantity;
+                }
+            });
         }
 
-        public virtual void RemoveLine(Product product) => lineCollection.RemoveAll(l => l.Product.Id == product.Id);
+        public virtual async Task RemoveLine(Product product) => await Task.Run(() => lineCollection.TryRemove(product.Id, out _));
 
-        public virtual decimal ComputeTotalValue() => lineCollection.Sum(e => e.Product.Price * e.Quantity);
+        public virtual async Task<decimal> ComputeTotalValue() => await Task.Run(() => lineCollection.Sum(p => p.Value.Product.Price * p.Value.Quantity));
 
-        public virtual void Clear() => lineCollection.Clear();
+        //public virtual void Clear() => lineCollection.Clear();
 
-        public virtual IEnumerable<CartLine> Lines => lineCollection;
+        public virtual async Task<IEnumerable<CartLine>> Lines() => await Task.Run(() => lineCollection.ToList<KeyValuePair<string, CartLine>>().Select(p => p.Value));
     }
 }

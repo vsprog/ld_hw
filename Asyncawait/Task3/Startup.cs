@@ -16,7 +16,8 @@ namespace Task3
         {
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("db"));
             services.AddTransient<IProductRepository, ProductRepository>();
-            services.AddScoped<Cart>(provider => SessionCart.GetCart(provider));
+            //services.AddScoped<Cart>(provider => SessionCart.GetCart(provider));
+            services.AddSingleton<Cart, Cart>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
             services.AddMemoryCache();
