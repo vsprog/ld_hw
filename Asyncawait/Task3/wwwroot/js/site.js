@@ -40,19 +40,18 @@
             success: (data, textStatus, request) => {
                 sender.parent().parent().remove();
                 updateCartInfo(data);
+                $('.cart__total-sum').html(data.totalSum);
             }
         });
     });
 
     function updateCartInfo(cartViewModel) {
-        let productCountElement = $('.session-cart_count');
-        let totalPriceElement = $('.session-cart_total-price');
         let headerCartElement = $('.session-cart');
 
         if (cartViewModel.totalItems == 0) headerCartElement.addClass('d-none');
         else headerCartElement.removeClass('d-none');
 
-        productCountElement.html(cartViewModel.totalItems);
-        totalPriceElement.html(cartViewModel.totalSum);
+        $('.session-cart__count').html(cartViewModel.totalItems);
+        $('.session-cart__total-price').html(cartViewModel.totalSum);
     }
 })()

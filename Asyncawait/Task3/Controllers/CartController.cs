@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Threading.Tasks;
 using Task3.Infrastructure;
 using Task3.Models;
 using Task3.Repositories;
@@ -17,50 +18,50 @@ namespace Task3.Controllers
             cart = cartService;
         }
 
-        public ViewResult Index(string returnUrl)
+        public async Task<ViewResult> Index(string returnUrl)
         {
             var result = new CartViewModel
             {
-                Lines = cart.Lines,
-                TotalSum = cart.ComputeTotalValue()
+                Lines = await cart.Lines(),
+                TotalSum = await cart.ComputeTotalValue()
             };
 
             return View(result);
         }
 
         [HttpPost]
-        public IActionResult AddToCart([FromBody] string productId)
+        public async Task<IActionResult> AddToCart([FromBody] string productId)
         {
             Product product = repository.GetProduct(productId);
             
             if (product != null)
             {
-                cart.AddItem(product, 1);
+                await cart.AddItem(product, 1);
             }
 
-            var result = GetShortModel();
+            var result = await GetShortModel();
             return Ok(result);
         }
 
         [HttpDelete]
-        public IActionResult RemoveFromCart([FromBody] string productId)
+        public async Task<IActionResult> RemoveFromCart([FromBody] string productId)
         {
             Product product = repository.GetProduct(productId);
 
             if (product != null)
             {
-                cart.RemoveLine(product);
+                await cart.RemoveLine(product);
             }
 
-            var result = GetShortModel();
+            var result = await GetShortModel();
             return Ok(result);
         }
 
         [HttpGet]
-        public CartViewModel GetShortModel() => new CartViewModel
+        public async Task<CartViewModel> GetShortModel() => new CartViewModel
         {
-            TotalSum = cart.ComputeTotalValue(),
-            TotalItems = cart.Lines.Sum(x => x.Quantity)
+            TotalSum = await cart .ComputeTotalValue(),
+            TotalItems = (await cart.Lines()).Sum(x => x.Quantity)
         };
     }
 }
