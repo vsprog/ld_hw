@@ -1,26 +1,20 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Task3.Contexts;
-using Task3.Infrastructure;
-using Task3.Repositories;
+using Task4.Contexts;
+using Task4.Repositories;
 
-namespace Task3
+namespace Task4
 {
     public class Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("db"));
-            services.AddTransient<IProductRepository, ProductRepository>();
-            services.AddScoped<Cart>(provider => SessionCart.GetCart(provider));
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<IUserRepository, UserRepository>();
             services.AddMvc();
-            services.AddMemoryCache();
-            services.AddSession();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -29,13 +23,7 @@ namespace Task3
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-            }
 
-            app.UseStaticFiles();
-            app.UseSession();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

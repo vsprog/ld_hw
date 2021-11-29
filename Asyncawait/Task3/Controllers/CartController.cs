@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using Task3.Abstract;
 using Task3.Infrastructure;
 using Task3.Models;
+using Task3.Repositories;
 
 namespace Task3.Controllers
 {
