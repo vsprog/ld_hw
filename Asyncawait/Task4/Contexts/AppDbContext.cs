@@ -10,7 +10,7 @@ namespace Task4.Contexts
         {
         }
 
-        public DbSet<User> Products { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
