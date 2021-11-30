@@ -10,10 +10,10 @@ namespace Task4.Repositories
         
         Task<User> GetUser(string id);
 
-        Task DeleteUser(string id);
+        Task<int> DeleteUser(string id);
 
         Task AddUser(User user);
 
-        Task UpdateUser(IUserRepository user);
+        Task UpdateUser(User user);
     }
 }

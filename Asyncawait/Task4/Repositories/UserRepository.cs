@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Task4.Contexts;
@@ -16,29 +16,40 @@ namespace Task4.Repositories
             this.context.Database.EnsureCreated();
         }
 
-        public Task AddUser(User user)
+        public async Task AddUser(User user)
         {
-            throw new NotImplementedException();
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
         }
 
-        public Task DeleteUser(string id)
+        public async Task<int> DeleteUser(string id)
         {
-            throw new NotImplementedException();
+            int result = 0;
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+
+            if (user != null)
+            {
+                context.Users.Remove(user);
+                result = await context.SaveChangesAsync();
+            }
+
+            return result;
         }
 
-        public Task<List<User>> GetAllUsers()
+        public async Task<List<User>> GetAllUsers()
         {
-            throw new NotImplementedException();
+            return await context.Users.ToListAsync();
         }
 
-        public Task<User> GetUser(string id)
+        public async Task<User> GetUser(string id)
         {
-            throw new NotImplementedException();
+            return await context.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
         }
 
-        public Task UpdateUser(IUserRepository user)
+        public async Task UpdateUser(User user)
         {
-            throw new NotImplementedException();
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
         }
     }
 }
