@@ -26,7 +26,7 @@ namespace Task2
                     case "d":
                         var tokenSource = new CancellationTokenSource();
                         queue.Add(++id, tokenSource);
-                        DownloadAsync(arguments[1], tokenSource.Token);
+                        DownloadAsync(arguments[1], tokenSource.Token, () => queue.Remove(id));
                         Console.WriteLine($"process id: {id}");
                         break;
                     case "c":
@@ -49,10 +49,11 @@ namespace Task2
             }
         }
 
-        private static async void DownloadAsync(string url, CancellationToken token)
+        private static async void DownloadAsync(string url, CancellationToken token, Action afterLoadedCallback)
         {
             string fileName = url.Split('/').Last();
-            var destinationFilePath = Path.GetFullPath($"C:\\projects\\{fileName}-{Guid.NewGuid()}");
+            var dir = Directory.CreateDirectory("C:\\DownloadedData");
+            var destinationFilePath = Path.GetFullPath($"{dir.FullName}\\{fileName}.{Guid.NewGuid()}");
             
             try
             {
@@ -61,6 +62,18 @@ namespace Task2
                     Console.WriteLine($"{fileName} is downloading...");
                     var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, token);
                     await DownloadFileFromHttpResponseMessage(response, destinationFilePath, token);
+                    afterLoadedCallback();
+
+                    try
+                    {
+                        File.Move(destinationFilePath, $"{dir.FullName}\\{fileName}");
+                    }
+                    catch
+                    {
+                        string base64Guid = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+                        File.Move(destinationFilePath, $"{dir.FullName}\\Copy[{base64Guid}].{fileName}");
+                    }
+
                     Console.WriteLine($"{fileName} is downloaded");
                 }
             }
@@ -78,7 +91,7 @@ namespace Task2
             using (var fileStream = new FileStream(outputDirectory, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
             {
                 token.ThrowIfCancellationRequested();
-                await contentStream.CopyToAsync(fileStream , token);
+                await contentStream.CopyToAsync(fileStream, token);
             }
         }
     }    

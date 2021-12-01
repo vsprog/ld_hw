@@ -69,11 +69,10 @@ namespace Task4.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteUser(string userId)
         {
-            int result = 0;
-
             try
             {
-                result = await repository.DeleteUser(userId);
+                int result = await repository.DeleteUser(userId);
+
                 if (result == 0)
                 {
                     return NotFound();
