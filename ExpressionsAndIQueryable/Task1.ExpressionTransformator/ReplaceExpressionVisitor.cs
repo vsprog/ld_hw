@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Task1.ExpressionTransformator
@@ -6,8 +8,14 @@ namespace Task1.ExpressionTransformator
     public class ReplaceExpressionVisitor : ExpressionVisitor
     {
 		public int indent = 0;
+        private readonly IDictionary<string, object> paramsToReplace;
 
-		public override Expression Visit(Expression node)
+        public ReplaceExpressionVisitor(IDictionary<string, object> replacers)
+        {
+            paramsToReplace = replacers;
+        }
+        
+        public override Expression Visit(Expression node)
 		{
 			if (node == null) return base.Visit(node);
 
@@ -22,38 +30,40 @@ namespace Task1.ExpressionTransformator
 
 		protected override Expression VisitBinary(BinaryExpression node)
         {
-            var nodeType = node.NodeType;
-
-            if (nodeType == ExpressionType.Add || nodeType == ExpressionType.Subtract)
+            if (node.Right.NodeType == ExpressionType.Constant && (int)(node.Right as ConstantExpression).Value == 1)
             {
-                ParameterExpression param = null;
-                ConstantExpression constant = null;
-
-                if (node.Left.NodeType == ExpressionType.Parameter)
+                if (node.NodeType == ExpressionType.Add)
                 {
-                    param = (ParameterExpression)node.Left;
-                }
-                else if (node.Left.NodeType == ExpressionType.Constant)
-                {
-                    constant = (ConstantExpression)node.Left;
+                    return VisitUnary(Expression.Increment(node.Left));
                 }
 
-                if (node.Right.NodeType == ExpressionType.Parameter)
+                if (node.NodeType == ExpressionType.Subtract)
                 {
-                    param = (ParameterExpression)node.Right;
+                    return VisitUnary(Expression.Decrement(node.Left));
                 }
-                else if (node.Right.NodeType == ExpressionType.Constant)
-                {
-                    constant = (ConstantExpression)node.Right;
-                }
-
-                if (param != null && constant != null && constant.Type == typeof(int) && (int)constant.Value == 1)
-                {
-                    return nodeType == ExpressionType.Add ? Expression.Increment(param) : Expression.Decrement(param);
-                }
-
             }
+
             return base.VisitBinary(node);
         }
-	}
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            if (node is null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
+            return Expression.Lambda(Visit(node.Body), node.Parameters);
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            if (paramsToReplace.TryGetValue(node.Name, out object constValue))
+            {
+                return Expression.Constant(constValue);
+            }
+
+            return base.VisitParameter(node);
+        }
+    }
 }
