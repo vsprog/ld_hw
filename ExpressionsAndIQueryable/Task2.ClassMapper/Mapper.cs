@@ -11,19 +11,7 @@ namespace Task2.ClassMapper
 
         internal Mapper()
         {
-            var sourceParam = Expression.Parameter(typeof(TSource));            
-            var init = DestinationCtorExpression(sourceParam);
-
-            converter = Expression.Lambda<Func<TSource, TDestination>>(init, sourceParam).Compile();
-        }
-
-        public TDestination Map(TSource source)
-        {
-            return converter.Invoke(source);
-        }
-
-        private MemberInitExpression DestinationCtorExpression(ParameterExpression sourceParam)
-        {
+            var sourceParam = Expression.Parameter(typeof(TSource));
             var outType = typeof(TDestination);
             var sourceProperties = typeof(TSource).GetProperties();
             var propList = new List<MemberBinding>();
@@ -40,7 +28,14 @@ namespace Task2.ClassMapper
                 }
             }
 
-            return Expression.MemberInit(Expression.New(outType), propList);
+            var init = Expression.MemberInit(Expression.New(outType), propList);
+
+            converter = Expression.Lambda<Func<TSource, TDestination>>(init, sourceParam).Compile();
+        }
+
+        public TDestination Map(TSource source)
+        {
+            return converter.Invoke(source);
         }
     }
 }
