@@ -1,35 +1,39 @@
 ﻿using PowerStateManagement.Settings;
 using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace PowerStateManagement
 {
-    public class PowerStateManager
+    [ComVisible(true)]
+    [Guid("D3EDDA38-51EA-4B28-93ED-51BB7589DB8B")]
+    [ClassInterface(ClassInterfaceType.None)]
+    public class PowerStateManager : IPowerStateManager
     {
         #region power info
-        public DateTime GetLastSleepTime()
+        public string GetLastSleepTime()
         {
             long mSecs = GetPowerData<long>(PowerInformationLevel.LastSleepTime);
-            return new DateTime(mSecs);
+            return mSecs.ToString();
         }
         
-        public DateTime GetLastWakeTime()
+        public string GetLastWakeTime()
         {
             long mSecs = GetPowerData<long>(PowerInformationLevel.LastWakeTime);
-            return new DateTime(mSecs);
+            return mSecs.ToString();
         }
-
-        
-        public SystemBatteryState GetSystemBatteryState()
+                
+        public string GetSystemBatteryState()
         {
             var batteryState = GetPowerData<SystemBatteryState>(PowerInformationLevel.SystemBatteryState);
-            return batteryState;
+            return StructToString(batteryState);
         }
 
-        public SystemPowerInformation GetSystemPowerInformation()
+        public string GetSystemPowerInformation()
         {
             var powerInfo = GetPowerData<SystemPowerInformation>(PowerInformationLevel.SystemPowerInformation);
-            return powerInfo;
+            return StructToString(powerInfo);
         }
         #endregion
 
@@ -83,6 +87,16 @@ namespace PowerStateManagement
             if (status != PowerStateManagerInterop.STATUS_SUCCESS) throw new AggregateException();
 
             Marshal.FreeHGlobal(lpInputBuffer);
+        }
+
+        private string StructToString<T>(T structure)
+        {
+            var sb = new StringBuilder();
+            foreach (var field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+            {
+                sb.Append($"{field.Name} = {field.GetValue(structure)}\n");
+            }
+            return sb.ToString();
         }
         #endregion
     }
