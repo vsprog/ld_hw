@@ -1,48 +1,70 @@
-﻿using PowerStateManagement.Models;
+﻿using PowerStateManagement.Settings;
 using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Management;
 using System.Runtime.InteropServices;
 
 namespace PowerStateManagement
 {
     public class PowerStateManager
     {
+        #region power info
         public DateTime GetLastSleepTime()
         {
-            long nSecs = GetPowerData<long>(PowerInformationLevel.LastSleepTime);
-            DateTime lastSleepTime = GetLastBootUpTime().AddTicks(nSecs);
-
-            return lastSleepTime;
+            long mSecs = GetPowerData<long>(PowerInformationLevel.LastSleepTime);
+            return new DateTime(mSecs);
         }
         
         public DateTime GetLastWakeTime()
         {
-            long nSecs = GetPowerData<long>(PowerInformationLevel.LastWakeTime);
-            DateTime lastWakeTime = GetLastBootUpTime().AddTicks(nSecs);
-
-            return lastWakeTime;
+            long mSecs = GetPowerData<long>(PowerInformationLevel.LastWakeTime);
+            return new DateTime(mSecs);
         }
 
-        /*
+        
         public SystemBatteryState GetSystemBatteryState()
         {
-
+            var batteryState = GetPowerData<SystemBatteryState>(PowerInformationLevel.SystemBatteryState);
+            return batteryState;
         }
 
         public SystemPowerInformation GetSystemPowerInformation()
         {
+            var powerInfo = GetPowerData<SystemPowerInformation>(PowerInformationLevel.SystemPowerInformation);
+            return powerInfo;
+        }
+        #endregion
 
-        }*/
+        #region hibernate file operations
+        public void ReserveHibernateFile()
+        {
+            HibernateFileAction(toDelete: false);
+        }
 
+        public void DeleteHibernateFile()
+        {
+            HibernateFileAction(toDelete: true);
+        }
+        #endregion
+
+        #region suspend operations
+        public void Hibernate()
+        {
+            PowerStateManagerInterop.SetSuspendState(true, true, true);
+        }
+
+        public void Standby()
+        {
+            PowerStateManagerInterop.SetSuspendState(false, true, true);
+        }
+        #endregion
+
+        #region private
         private T GetPowerData<T>(PowerInformationLevel level)
         {
             int size = Marshal.SizeOf<T>();
             IntPtr lpOutputBuffer = Marshal.AllocCoTaskMem(size);
             uint status = PowerStateManagerInterop.CallNtPowerInformation((int)level, IntPtr.Zero, 0, lpOutputBuffer, (uint)size);
 
-            if (status != PowerStateManagerInterop.STATUS_SUCCESS) throw new Win32Exception();
+            if (status != PowerStateManagerInterop.STATUS_SUCCESS) throw new AggregateException();
 
             var result =  Marshal.PtrToStructure<T>(lpOutputBuffer);
             Marshal.FreeHGlobal(lpOutputBuffer);
@@ -50,16 +72,18 @@ namespace PowerStateManagement
             return result;
         }
 
-        private DateTime GetLastBootUpTime()
+        private void HibernateFileAction(bool toDelete = false)
         {
-            PropertyData lastBootUpTimeProperty = new ManagementClass("Win32_OperatingSystem")
-                .GetInstances()
-                .Cast<ManagementBaseObject>()
-                .SelectMany(o => o.Properties.Cast<PropertyData>())
-                .First(o => o.Name == "LastBootUpTime");
-            var bootTime = ManagementDateTimeConverter.ToDateTime(lastBootUpTimeProperty.Value.ToString());
+            int action = toDelete ? 0 : 1;
+            int size = Marshal.SizeOf<bool>();
+            IntPtr lpInputBuffer = Marshal.AllocCoTaskMem(size);
+            Marshal.WriteByte(lpInputBuffer, (byte)action);
+            uint status = PowerStateManagerInterop.CallNtPowerInformation((int)PowerInformationLevel.SystemReserveHiberFile, lpInputBuffer, (uint)size, IntPtr.Zero, 0);
 
-            return bootTime;
+            if (status != PowerStateManagerInterop.STATUS_SUCCESS) throw new AggregateException();
+
+            Marshal.FreeHGlobal(lpInputBuffer);
         }
+        #endregion
     }
 }

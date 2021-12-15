@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace PowerStateManagement.Models
+namespace PowerStateManagement.Settings
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct SystemBatteryState

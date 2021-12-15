@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PowerStateManagement.Models
+namespace PowerStateManagement.Settings
 {
     internal enum PowerInformationLevel : Int32
     {
