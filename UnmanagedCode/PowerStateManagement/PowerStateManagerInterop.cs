@@ -14,5 +14,12 @@ namespace PowerStateManagement
             UInt32 nInputBufferSize,
             IntPtr lpOutputBuffer,
             UInt32 nOutputBufferSize);
+
+        [DllImport("powrprof.dll", SetLastError = true)]
+        public static extern bool SetSuspendState(
+            bool Hibernate,
+            bool ForceCritical,
+            bool DisableWakeEvent
+        );
     }
 }
