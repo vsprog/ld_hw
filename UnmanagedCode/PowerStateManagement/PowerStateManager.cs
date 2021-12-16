@@ -64,14 +64,26 @@ namespace PowerStateManagement
         #region private
         private T GetPowerData<T>(PowerInformationLevel level)
         {
+            T result;
             int size = Marshal.SizeOf<T>();
             IntPtr lpOutputBuffer = Marshal.AllocCoTaskMem(size);
-            uint status = PowerStateManagerInterop.CallNtPowerInformation((int)level, IntPtr.Zero, 0, lpOutputBuffer, (uint)size);
+            
+            try
+            {
+                uint status = PowerStateManagerInterop.CallNtPowerInformation((int)level, IntPtr.Zero, 0, lpOutputBuffer, (uint)size);
+                if (status != PowerStateManagerInterop.STATUS_SUCCESS) 
+                    throw new AggregateException();
 
-            if (status != PowerStateManagerInterop.STATUS_SUCCESS) throw new AggregateException();
-
-            var result =  Marshal.PtrToStructure<T>(lpOutputBuffer);
-            Marshal.FreeHGlobal(lpOutputBuffer);
+                result = Marshal.PtrToStructure<T>(lpOutputBuffer);
+            }
+            catch
+            {
+                throw;
+            }
+            finally 
+            {
+                Marshal.FreeHGlobal(lpOutputBuffer);
+            }
 
             return result;
         }
@@ -82,11 +94,21 @@ namespace PowerStateManagement
             int size = Marshal.SizeOf<bool>();
             IntPtr lpInputBuffer = Marshal.AllocCoTaskMem(size);
             Marshal.WriteByte(lpInputBuffer, (byte)action);
-            uint status = PowerStateManagerInterop.CallNtPowerInformation((int)PowerInformationLevel.SystemReserveHiberFile, lpInputBuffer, (uint)size, IntPtr.Zero, 0);
-
-            if (status != PowerStateManagerInterop.STATUS_SUCCESS) throw new AggregateException();
-
-            Marshal.FreeHGlobal(lpInputBuffer);
+            
+            try
+            {
+                uint status = PowerStateManagerInterop.CallNtPowerInformation((int)PowerInformationLevel.SystemReserveHiberFile, lpInputBuffer, (uint)size, IntPtr.Zero, 0);
+                if (status != PowerStateManagerInterop.STATUS_SUCCESS) 
+                    throw new AggregateException();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(lpInputBuffer);
+            }
         }
 
         private string StructToString<T>(T structure)
