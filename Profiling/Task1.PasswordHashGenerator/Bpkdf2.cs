@@ -19,9 +19,13 @@ namespace Task1.PasswordHashGenerator
 
         public byte[] GetBytes(int count)
         {
-            int status = Bpkdf2Interop.BCryptOpenAlgorithmProvider(out IntPtr Alg, "SHA1", null, BCryptFlags.BCRYPT_ALG_HANDLE_HMAC_FLAG);
+            int status = Bpkdf2Interop.BCryptOpenAlgorithmProvider(
+                out IntPtr Alg, 
+                "SHA1", 
+                null, 
+                BCryptFlags.BCRYPT_ALG_HANDLE_HMAC_FLAG);
 
-            using (var Handle = new SafeBcryptAlgorithmHandle(Alg))
+            using (var handle = new SafeBcryptAlgorithmHandle(Alg))
             {
                 if (Alg != IntPtr.Zero)
                 {
@@ -34,7 +38,8 @@ namespace Task1.PasswordHashGenerator
                         salt,
                         salt.Length,
                         iterate,
-                        Result, Result.Length,
+                        Result, 
+                        Result.Length,
                         BCryptFlags.NO_FLAGS);
 
                     if (status != 0) throw new Win32Exception($"Key generator failed with NT Status {status}");
