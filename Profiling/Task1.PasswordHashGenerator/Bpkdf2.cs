@@ -29,7 +29,7 @@ namespace Task1.PasswordHashGenerator
             {
                 if (Alg != IntPtr.Zero)
                 {
-                    byte[] Result = new byte[count];
+                    byte[] result = new byte[count];
 
                     status = Bpkdf2Interop.BCryptDeriveKeyPBKDF2(
                         Alg,
@@ -38,13 +38,13 @@ namespace Task1.PasswordHashGenerator
                         salt,
                         salt.Length,
                         iterate,
-                        Result, 
-                        Result.Length,
+                        result, 
+                        result.Length,
                         BCryptFlags.NO_FLAGS);
 
                     if (status != 0) throw new Win32Exception($"Key generator failed with NT Status {status}");
 
-                    return Result;
+                    return result;
                 }
                 else throw new Win32Exception($"Open failed with NT Status {status}");
             }

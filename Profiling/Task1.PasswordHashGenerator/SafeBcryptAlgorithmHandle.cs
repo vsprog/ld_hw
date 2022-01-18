@@ -6,9 +6,9 @@ namespace Task1.PasswordHashGenerator
 {
     public class SafeBcryptAlgorithmHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        public SafeBcryptAlgorithmHandle(IntPtr Handle) : base(true)
+        public SafeBcryptAlgorithmHandle(IntPtr handle) : base(true)
         {
-            SetHandle(Handle);
+            SetHandle(handle);
         }
 
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
