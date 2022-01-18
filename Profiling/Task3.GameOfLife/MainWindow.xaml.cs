@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -16,43 +17,40 @@ namespace GameOfLife
         {
             InitializeComponent();
             mainGrid = new Grid(MainCanvas);
-
+            adWindow = new AdWindow[2];
             timer = new DispatcherTimer();
             timer.Tick += OnTimer;
-            timer.Interval = TimeSpan.FromMilliseconds(200);
+            timer.Interval = TimeSpan.FromMilliseconds(100);
         }
 
 
         private void StartAd()
         {
-            
+            for (int i = 0; i < adWindow.Length; i++)
             {
-                adWindow = new AdWindow[2];
-                for (int i = 0; i < 2; i++)
+                if (adWindow[i] == null)
                 {
-                    if (adWindow[i] == null)
-                    {
-                        adWindow[i] = new AdWindow(this);
-                        adWindow[i].Closed += AdWindowOnClosed;
-                        adWindow[i].Top = this.Top + (330 * i) + 70;
-                        adWindow[i].Left = this.Left + 240;                        
-                        adWindow[i].Show();
-                    }
+                    adWindow[i] = new AdWindow(this);
+                    adWindow[i].Closed += AdWindowOnClosed;
+                    adWindow[i].Top = this.Top + (330 * i) + 70;
+                    adWindow[i].Left = this.Left + 240;
+                    adWindow[i].Show();
                 }
-                
-                
             }
         }
 
         private void AdWindowOnClosed(object sender, EventArgs eventArgs)
         {
-            for (int i = 0; i < 2; i++)
+            AdWindow closingWindow = (AdWindow)sender;
+
+            for (int i = 0; i < adWindow.Length; i++)
             {
-                adWindow[i].Closed -= AdWindowOnClosed;
-                adWindow[i] = null;
+                if (adWindow[i] != null && adWindow[i].Uid.CompareTo(closingWindow.Uid) == 0)
+                {
+                    adWindow[i].Closed -= AdWindowOnClosed;
+                    adWindow[i] = null;
+                }
             }
-            
-            
         }
 
 
@@ -83,6 +81,6 @@ namespace GameOfLife
             mainGrid.Clear();
         }
 
-        
+
     }
 }
