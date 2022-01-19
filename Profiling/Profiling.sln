@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfileSample", "ProfileSam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfLife", "Task3.GameOfLife\GameOfLife.csproj", "{BDFD7BAE-9744-44C4-8259-B3757F24B245}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyCalculator", "Task4.DumpHomework\MyCalculator\MyCalculator.csproj", "{3152E225-DD7C-4061-9D25-2C4C7F00C55B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3152E225-DD7C-4061-9D25-2C4C7F00C55B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3152E225-DD7C-4061-9D25-2C4C7F00C55B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3152E225-DD7C-4061-9D25-2C4C7F00C55B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3152E225-DD7C-4061-9D25-2C4C7F00C55B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
